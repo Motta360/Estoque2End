@@ -1,0 +1,11 @@
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\config\CorsConfig.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\controllers\EstoqueController.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\controllers\ImageController.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\EstoqueApiApplication.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\models\Estoque.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\models\Movel.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\models\Pedido.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\repositories\EstoqueRepository.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\repositories\MovelRepository.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\repositories\PedidoRepository.java
+C:\Users\Lucas\Desktop\ESTOQUEFOX\EstoqueVersão2\EstoqueAttempt2\BackEnd\estoqueAPI\src\main\java\com\estoqueAPI\estoqueAPI\services\EstoqueService.java

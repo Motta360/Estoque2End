@@ -1,0 +1,12 @@
+com\estoqueAPI\estoqueAPI\repositories\EstoqueRepository.class
+com\estoqueAPI\estoqueAPI\services\EstoqueService.class
+com\estoqueAPI\estoqueAPI\models\Movel.class
+com\estoqueAPI\estoqueAPI\models\Pedido.class
+com\estoqueAPI\estoqueAPI\controllers\EstoqueController.class
+com\estoqueAPI\estoqueAPI\controllers\ImageController.class
+com\estoqueAPI\estoqueAPI\controllers\EstoqueController$1.class
+com\estoqueAPI\estoqueAPI\repositories\PedidoRepository.class
+com\estoqueAPI\estoqueAPI\repositories\MovelRepository.class
+com\estoqueAPI\estoqueAPI\config\CorsConfig.class
+com\estoqueAPI\estoqueAPI\EstoqueApiApplication.class
+com\estoqueAPI\estoqueAPI\models\Estoque.class
