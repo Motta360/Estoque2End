@@ -1,69 +1,52 @@
 package com.estoqueAPI.estoqueAPI.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.Resource;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-
-
-
 
 @RestController
 @RequestMapping("/api/images")
 public class ImageController {
 
-    @Value("${image.upload-dir}")
-    private String uploadDir;
+    @Autowired
+    private S3Client s3Client;
+
+    @Value("${aws.bucketName}")
+    private String bucketName;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-            // Cria o diretório se não existir
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            // Salva o arquivo no diretório
-            Path path = Paths.get(uploadDir + file.getOriginalFilename());
-            Files.write(path, file.getBytes());
-
-            String imageUrl = "http://localhost:8080/api/images/" + file.getOriginalFilename();
+            // Faz o upload da imagem para o S3
+            String fileName = file.getOriginalFilename();
+            s3Client.putObject(
+                PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .build(),
+                RequestBody.fromBytes(file.getBytes())
+            );
+    
+            // Gera a URL pública da imagem
+            String imageUrl = "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
             return ResponseEntity.ok(imageUrl);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Falha ao salvar a imagem");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Falha ao enviar a imagem");
         }
     }
 
     @GetMapping("/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-        try {
-            Path path = Paths.get(uploadDir).resolve(filename);
-            Resource resource = new UrlResource(path.toUri());
-
-            if (resource.exists() || resource.isReadable()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG) // ou MediaType.IMAGE_PNG, dependendo do tipo de imagem
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-        } catch (MalformedURLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<String> getImage(@PathVariable String filename) {
+        // Retorna a URL da imagem no S3
+        String imageUrl = "https://" + bucketName + ".s3.amazonaws.com/" + filename;
+        return ResponseEntity.ok(imageUrl);
     }
 }
