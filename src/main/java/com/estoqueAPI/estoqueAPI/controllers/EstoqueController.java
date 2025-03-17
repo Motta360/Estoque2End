@@ -1,6 +1,5 @@
 package com.estoqueAPI.estoqueAPI.controllers;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +31,9 @@ import com.estoqueAPI.estoqueAPI.repositories.MovelRepository;
 import com.estoqueAPI.estoqueAPI.repositories.PedidoRepository;
 import com.estoqueAPI.estoqueAPI.services.EstoqueService;
 
-import java.io.File;
-import java.nio.file.Path;
-
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -52,6 +51,12 @@ public class EstoqueController {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    @Autowired
+    private S3Client s3Client;
+
+    @Value("${aws.bucketName}")
+    private String bucketName;
+
     @GetMapping("/{id}/moveis")
     public ResponseEntity<List<Movel>> getMoveis(@PathVariable Long id) {
         try {
@@ -65,24 +70,18 @@ public class EstoqueController {
 
     @GetMapping("/{id}/{movel}")
     public ResponseEntity<Movel> getMovel(@PathVariable Long id, @PathVariable String movel) {
-
         try {
             Estoque estoque = estoqueService.getEstoque(id);
             for (Movel movel_ : estoque.getMoveis()) {
                 if (movel_.getName().equalsIgnoreCase(movel)) {
                     return ResponseEntity.ok(movel_);
                 }
-
             }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Móvel específico não encontrado");
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movel especifico não encontrado", e);
         }
-
     }
-
-    @Value("${uploads.directory}")
-    private String uploadsDirectory;
 
     @DeleteMapping("/{id}/delete/{movel}")
     public ResponseEntity<Movel> deleteMovel(@PathVariable Long id, @PathVariable String movel) {
@@ -90,31 +89,23 @@ public class EstoqueController {
 
         for (Movel movel_ : estoque.getMoveis()) {
             if (movel_.getName().equalsIgnoreCase(movel)) {
-                // Deleta a imagem relacionada ao móvel
                 String imgUrl = movel_.getImgUrl();
                 if (imgUrl != null && !imgUrl.isEmpty()) {
-                    // Obtém o nome do arquivo a partir da URL
-                    String fileName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+                    try {
+                        String fileName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
 
-                    // Constrói o caminho completo do arquivo
-                    Path filePath = Paths.get(uploadsDirectory, fileName);
+                        s3Client.deleteObject(DeleteObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(fileName)
+                                .build());
 
-                    // Cria um objeto File para o arquivo
-                    File file = filePath.toFile();
-
-                    // Verifica se o arquivo existe e o deleta
-                    if (file.exists()) {
-                        if (file.delete()) {
-                            System.out.println("Arquivo deletado com sucesso: " + filePath);
-                        } else {
-                            System.out.println("Falha ao deletar o arquivo: " + filePath);
-                        }
-                    } else {
-                        System.out.println("Arquivo não encontrado: " + filePath);
+                        System.out.println("Imagem deletada com sucesso do S3: " + fileName);
+                    } catch (S3Exception e) {
+                        System.err.println("Erro ao deletar a imagem do S3: " + e.awsErrorDetails().errorMessage());
+                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao deletar a imagem do S3");
                     }
                 }
 
-                // Remove o móvel do estoque e do banco de dados
                 estoque.getMoveis().remove(movel_);
                 movelRepository.deleteById(movel_.getId());
                 estoqueRepository.save(estoque);
@@ -144,7 +135,6 @@ public class EstoqueController {
 
     @GetMapping("/pedidos")
     public ResponseEntity<List<Pedido>> getPedidos() {
-
         List<Pedido> enviar = pedidoRepository.findAll();
         Collections.reverse(enviar);
         return ResponseEntity.ok(enviar);
@@ -232,7 +222,6 @@ public class EstoqueController {
             }
         });
         try {
-
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("lara.gaia@foxengenharia.com.br"));
